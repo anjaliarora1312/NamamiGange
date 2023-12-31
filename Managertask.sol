@@ -1,51 +1,34 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-
+import "./volunteer.sol";
 contract CleaningDrive {
 
-    address public manager;
-    uint256 public cleaningDate;
-    address public administrator;
-    mapping(address => bool) public volunteers;
 
-    event CleaningDriveScheduled(address indexed manager, uint256 cleaningDate);
-    event VolunteerRegistered(address indexed volunteer);
-    event ParticipationRecordUpdated(address indexed volunteer, uint256 cleaningDate);
-
+    struct Manager {
+        string aadharCardNumber; 
+        string name;
+        uint age;
+        string contactNumber;
+        address admanager;
+    }
+    Manager public manager;
+    Project public volunter;
+    event CleaningDriveScheduled(address indexed manager, string date);
+    function addmanager(string memory _aadharCardNumber, string memory _name, uint256 _age, string memory _contactNumber, address _admanager) public
+    {
+        manager=Manager(_aadharCardNumber,_name,_age,_contactNumber,_admanager);
+    }
     modifier onlyManager() {
-        require(msg.sender == manager, "Only the manager can call this function");
+        require(msg.sender == manager.admanager, "Only the manager can call this function");
         _;
     }
-
-    modifier notRegisteredVolunteer() {
-        require(!volunteers[msg.sender], "Volunteer is already registered");
-        _;
+   function scheduleCleaningDrive(string memory date, string memory aadharcard) external onlyManager {
+        volunter.assigncleaningdate(aadharcard,date);
+        emit CleaningDriveScheduled(manager.admanager, date);
     }
-
-    constructor() {
-        manager = msg.sender;
-    }
-
-    function scheduleCleaningDrive(uint256 date) external onlyManager {
-        cleaningDate = date;
-        emit CleaningDriveScheduled(manager, date);
-    }
-
-    function registerAsVolunteer() external notRegisteredVolunteer {
-        volunteers[msg.sender] = true;
-        emit VolunteerRegistered(msg.sender);
-    }
-    function updateParticipationRecord() external {
-        require(volunteers[msg.sender], "Only registered volunteers can update records");
-        require(cleaningDate > 0, "Cleaning drive date not set");
-        emit ParticipationRecordUpdated(msg.sender, cleaningDate);
-        (bool success, ) = administrator.call(abi.encodeWithSignature("updateParticipationRecord(address,uint256)", msg.sender, cleaningDate));
-        require(success, "Failed to update administrator");
-    }
-    function getCleaningDate() external view returns (uint256) {
-        return cleaningDate;
-    }
-    function isVolunteerRegistered(address volunteer) external view returns (bool) {
-        return volunteers[volunteer];
+   constructor(address _volunteeraddr) {
+       
+        volunter = Project(_volunteeraddr);
+      
     }
 }

@@ -1,21 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
+import "./volunteer.sol";
+import "./Managertask.sol";
 contract AccessControl{
     address public administrator;
     address public manager;
     mapping(address=>bool) public managers;
     mapping(address => bool) public accountManagers;
-    mapping(address => bool) public volunteers;
-   mapping(address => bool) public canSchedule;
-   event ManagerGranted(address indexed manager);
+    Project public volun;
+    CleaningDrive public manage;
+   // mapping(address => bool) public volunteers;
+    mapping(address => bool) public canSchedule;
+    event getName(string);
+    event ManagerGranted(address indexed manager);
     event ManagerAdded(address indexed managerAddress);
     event AccountManagerAdded(address indexed accountManagerAddress);
-    event VolunteerAdded(address indexed volunteerAddress);
+    //event VolunteerAdded(address indexed volunteerAddress);
+     event VolunteerVerified(address volunteer, address admin);
     event ManagerRemoved(address indexed managerAddress);
     event AccountManagerRemoved(address indexed accountManagerAddress);
-    event VolunteerRemoved(address indexed volunteerAddress);
-   event CleaningDriveScheduled(address indexed manager, uint256 startTime, uint256 endTime);
-modifier onlyManagerOrAdmin() {
+    event VolunteerRemoved(string _aadharCardNumber, string _name, uint _age, string _contactNumber);
+    event CleaningDriveScheduled(address indexed manager, uint256 startTime, uint256 endTime);
+   modifier onlyManagerOrAdmin() {
         require(msg.sender == manager || msg.sender == administrator, "Only manager or admin can call this function");
         _;
     }   
@@ -31,13 +37,10 @@ modifier onlyManagerOrAdmin() {
         require(accountManagers[msg.sender], "Only account manager can perform this action");
         _;
     }
-
-    modifier onlyVolunteer() {
-        require(volunteers[msg.sender], "Only volunteer can perform this action");
-        _;
-    }
-    constructor() {
+    constructor(address _volunteeraddr, address _manageaddress) {
         administrator = msg.sender;
+        volun = Project(_volunteeraddr);
+        manage=CleaningDrive(_manageaddress);
     }
     function addManager(address _manager) external onlyAdministrator {
         managers[_manager] = true;
@@ -55,24 +58,23 @@ modifier onlyManagerOrAdmin() {
         accountManagers[_accountManager] = false;
         emit AccountManagerRemoved(_accountManager);
     }
-
-    function addVolunteer(address _volunteer) external onlyAdministrator {
-        volunteers[_volunteer] = true;
-        emit VolunteerAdded(_volunteer);
+    function removeVolunteer(string memory _aadharCardNumber, string memory _name, uint _age, string memory _contactNumber) external onlyAdministrator {
+    require (volun.registerAsVolunteer(_aadharCardNumber,_name,_age,_contactNumber,false)
+       emit VolunteerRemoved(_aadharCardNumber,_name,_age,_contactNumber);
     }
-
-    function removeVolunteer(address _volunteer) external onlyAdministrator {
-        volunteers[_volunteer] = false;
-        emit VolunteerRemoved(_volunteer);
-    }
-     function grantManagerRole(address _manager) external onlyAdministrator {
-        manager = _manager;
-        canSchedule[_manager] = true;
-        emit ManagerGranted(_manager);
-    }
-    function scheduleCleaningDrive(uint256 startTime, uint256 endTime) external onlyManagerOrAdmin {
-        require(canSchedule[msg.sender], "You do not have the right to schedule cleaning drives");
+   //  function grantManagerRole(address _manager) external onlyAdministrator {
+     //   manager = _manager;
+        //canSchedule[_manager] = true;
+        //emit ManagerGranted(_manager);
+    //}
+    function scheduleCleaningDrive(uint256 startTime, uint256 endTime) external onlyManagerOrAdmin 
+    {
+       require(canSchedule[msg.sender], "You do not have the right to schedule cleaning drives");
         require(startTime < endTime, "Invalid time range");
         emit CleaningDriveScheduled(msg.sender, startTime, endTime);
      }
+      function verifyVolunteer(address volunteer) external onlyAdministrator() {
+        require(volun.registeredVolunteers[volunteer], "Volunteer is not registered");
+        emit VolunteerVerified(volunteer, msg.sender);
+    }
 }
