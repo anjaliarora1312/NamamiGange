@@ -23,7 +23,7 @@ contract AccessControl{
         manage.setmanager(_aadharCardNumber,_name,_age,_contactNumber,_admanager);
         emit ManagerAdded(_admanager);
     }
-    function verifyVolunteer(string memory _aadharCardNumber, string memory _name, uint _age, string memory _contactNumber) external {
+    function verifyVolunteer(string memory _aadharCardNumber, string memory _name, uint _age, string memory _contactNumber) external onlyAdministrator{
         volun.registerAsVolunteer(_aadharCardNumber,_name,_age,_contactNumber);
         emit VolunteerVerified(_aadharCardNumber);
     }
