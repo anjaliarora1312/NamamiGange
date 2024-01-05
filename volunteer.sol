@@ -20,7 +20,7 @@ contract Project{
     }
      
     function registerAsVolunteer(string memory _aadharCardNumber, string memory _name, uint _age, string memory _contactNumber) external{
-        volunteers[_aadharCardNumber]=Volunteer(_aadharCardNumber,_name,_age,_contactNumber,false);
+        //volunteers[_aadharCardNumber]=Volunteer(_aadharCardNumber,_name,_age,_contactNumber,false);
        advolunteers[msg.sender]=Volunteer(_aadharCardNumber,_name,_age,_contactNumber,false);
      emit VolunteerRegistered(_aadharCardNumber, _name, _age, _contactNumber);
     }

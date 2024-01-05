@@ -14,7 +14,7 @@ contract CleaningDrive {
     Manager public manager;
     Project public volunter;
     event CleaningDriveScheduled(address indexed manager, string date);
-    function addmanager(string memory _aadharCardNumber, string memory _name, uint256 _age, string memory _contactNumber, address _admanager) public
+    function setmanager(string memory _aadharCardNumber, string memory _name, uint256 _age, string memory _contactNumber, address _admanager) public
     {
         manager=Manager(_aadharCardNumber,_name,_age,_contactNumber,_admanager);
     }
